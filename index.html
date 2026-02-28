@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2025餐厅评价年度报告</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(180deg, #e8f5e9 0%, #ffffff 100%);
+        }
+        .page-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        section {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+        section.active {
+            opacity: 1;
+            z-index: 10;
+        }
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        .page-content {
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 90%;
+            padding: 20px 0;
+        }
+        /* 第一页淡入动画 */
+        .page1 .title {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 0.7s ease forwards;
+        }
+        .page1 .author {
+            font-size: 1.4em;
+            color: #333;
+            opacity: 0;
+            animation: fadeIn 0.7s ease 0.2s forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        /* 前四页文字放大 */
+        .page1 .title { font-size: 2.8em; }
+        .page1 .author { font-size: 1.4em; }
+        .page2 h2, .page3 h2, .page4 h2 { font-size: 2.2em; }
+        .page2 p, .page3 p, .page4 p { font-size: 1.3em; line-height: 1.8; }
+        /* 排名列表 */
+        .ranking-list {
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .ranking-item {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .ranking-item .rank {
+            font-size: 1.8em;
+            font-weight: 700;
+            width: 40px;
+            text-align: center;
+            margin-right: 15px;
+        }
+        .ranking-item .name {
+            flex: 1;
+            font-size: 1.3em;
+            font-weight: 500;
+            white-space: pre-line; /* 自动换行 */
+        }
+        .ranking-item .score {
+            font-size: 1.1em;
+            color: #666;
+            margin-left: 10px;
+        }
+        /* 图表容器 */
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+        }
+        /* 视差偏移 */
+        .parallax {
+            transform: translateZ(0);
+            transition: transform 0.3s ease;
+        }
+        .parallax.active {
+            transform: translate3d(0, -10px, 0);
+        }
+        /* 卡片弹出 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        .card.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- 第1页：封面 -->
+        <section class="page1 active">
+            <video class="video-bg" id="video1" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/v0369cg10004d6beab7og65pefsj2bmg.mp4" type="video/mp4">
+            </video>
+            <div class="page-content">
+                <h1 class="title">2025餐厅评价年度报告</h1>
+                <p class="author">小琪小辞编</p>
+            </div>
+        </section>
+
+        <!-- 第2页：总情况 -->
+        <section class="page2">
+            <video class="video-bg" id="video2" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/454D5429-7873-43D1-8AFD-E74D42BB8A35_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>年度总览</h2>
+                <p>2025年，我们共探访了155家餐厅，足迹遍布城市的各个角落。从街头小吃到高端餐厅，每一次用餐都是一次味蕾的冒险。</p>
+            </div>
+        </section>
+
+        <!-- 第3页：总情况 -->
+        <section class="page3">
+            <video class="video-bg" id="video2" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/454D5429-7873-43D1-8AFD-E74D42BB8A35_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>消费趋势</h2>
+                <p>全年总消费额达到XXXXX元，人均消费XXX元。其中，小琪的平均消费为XXX元，小辞为XXX元。</p>
+            </div>
+        </section>
+
+        <!-- 第4页：总情况 -->
+        <section class="page4">
+            <video class="video-bg" id="video2" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/454D5429-7873-43D1-8AFD-E74D42BB8A35_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>评价维度</h2>
+                <p>我们从菜品、环境、服务、性价比四个维度对餐厅进行评分，力求客观全面地反映每一家餐厅的真实水平。</p>
+            </div>
+        </section>
+
+        <!-- 第5页：图表 chart2.1 -->
+        <section class="page5">
+            <video class="video-bg" id="video3" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/6C1DFA6B-28E0-4C0B-9388-8E939B33986F_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>评分维度对比</h2>
+                <div id="chart21" class="chart-container"></div>
+            </div>
+        </section>
+
+        <!-- 第6页：图表 chart2.3 -->
+        <section class="page6">
+            <video class="video-bg" id="video3" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/6C1DFA6B-28E0-4C0B-9388-8E939B33986F_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>月度消费趋势</h2>
+                <div id="chart23" class="chart-container"></div>
+            </div>
+        </section>
+
+        <!-- 第7页：排名 -->
+        <section class="page7">
+            <video class="video-bg" id="video4" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/D2EFCD8C-7CC5-4D2F-9812-5C939A5A12D4_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>2025年TOP15餐厅排行榜</h2>
+                <div class="ranking-list parallax">
+                    <div class="ranking-item card">
+                        <span class="rank">🏆1</span>
+                        <span class="name">前海沿 青岛菜</span>
+                        <span class="score">总分8.48 · 价格236</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">🥈2</span>
+                        <span class="name">青叶食堂</span>
+                        <span class="score">总分7.83 · 价格138</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">🥉3</span>
+                        <span class="name">南昌米粉</span>
+                        <span class="score">总分7.76 · 价格18</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">4</span>
+                        <span class="name">大吉利潮汕牛肉火锅</span>
+                        <span class="score">总分7.73 · 价格120</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">5</span>
+                        <span class="name">群乐饭店</span>
+                        <span class="score">总分7.70 · 价格115</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">6</span>
+                        <span class="name">金家馅饼</span>
+                        <span class="score">总分7.69 · 价格70</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">7</span>
+                        <span class="name">香园茶社</span>
+                        <span class="score">总分7.66 · 价格118</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">8</span>
+                        <span class="name">喜鼎</span>
+                        <span class="score">总分7.65 · 价格304</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">9</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">10</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">11</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">12</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">13</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">14</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                    <div class="ranking-item card">
+                        <span class="rank">15</span>
+                        <span class="name">XX餐厅</span>
+                        <span class="score">总分X.XX · 价格XXX</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第8页：排名 -->
+        <section class="page8">
+            <video class="video-bg" id="video4" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/D2EFCD8C-7CC5-4D2F-9812-5C939A5A12D4_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>TOP1-5 详细点评</h2>
+                <!-- 这里可以添加详细点评内容 -->
+            </div>
+        </section>
+
+        <!-- 第9页：排名 -->
+        <section class="page9">
+            <video class="video-bg" id="video4" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/D2EFCD8C-7CC5-4D2F-9812-5C939A5A12D4_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>TOP6-10 详细点评</h2>
+                <!-- 这里可以添加详细点评内容 -->
+            </div>
+        </section>
+
+        <!-- 第10页：月度趋势 -->
+        <section class="page10">
+            <video class="video-bg" id="video5" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/FD0B7E9B-BF7D-46BB-9095-7EECB0D18A1F_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>月度消费趋势分析</h2>
+                <p>从月度数据来看，我们的消费热情在年中达到顶峰，而在年末则有所回落。</p>
+            </div>
+        </section>
+
+        <!-- 第11页：月度趋势 -->
+        <section class="page11">
+            <video class="video-bg" id="video5" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/FD0B7E9B-BF7D-46BB-9095-7EECB0D18A1F_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>价格与评分的关系</h2>
+                <p>数据显示，价格与评分并非完全正相关，一些高性价比的餐厅同样获得了我们的青睐。</p>
+            </div>
+        </section>
+
+        <!-- 第12页：封底 -->
+        <section class="page12">
+            <video class="video-bg" id="video6" loop muted autoplay playsinline>
+                <source src="https://pridech.github.io/diet20260228/F41009D9-BDF3-4113-8EB1-84C158D65CC3_meta.mov" type="video/quicktime">
+            </video>
+            <div class="page-content">
+                <h2>感谢观看</h2>
+                <p>2026，我们继续吃遍全城！</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 页面翻页逻辑
+        let currentPage = 0;
+        const pages = document.querySelectorAll('section');
+        const totalPages = pages.length;
+
+        // 阻止内容滚动冒泡到翻页
+        document.querySelectorAll('.page-content').forEach(el => {
+            el.addEventListener('touchmove', (e) => {
+                e.stopPropagation();
+            }, { passive: false });
+        });
+
+        // 滑动翻页
+        let startY = 0;
+        document.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const endY = e.changedTouches[0].clientY;
+            const deltaY = startY - endY;
+
+            if (deltaY > 50 && currentPage < totalPages - 1) {
+                // 向下滑动，翻到下一页
+                pages[currentPage].classList.remove('active');
+                currentPage++;
+                pages[currentPage].classList.add('active');
+                // 触发视差和卡片动画
+                const parallax = pages[currentPage].querySelector('.parallax');
+                if (parallax) parallax.classList.add('active');
+                const cards = pages[currentPage].querySelectorAll('.card');
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.add('active'), i * 100);
+                });
+            } else if (deltaY < -50 && currentPage > 0) {
+                // 向上滑动，翻到上一页
+                pages[currentPage].classList.remove('active');
+                currentPage--;
+                pages[currentPage].classList.add('active');
+            }
+        });
+
+        // 初始化 chart2.1
+        const chart21 = echarts.init(document.getElementById('chart21'));
+        const option21 = {
+            width: "100%",
+            height: "400px",
+            backgroundColor: "#ffffff",
+            xAxis: {
+                type: 'category',
+                data: ["菜品", "环境", "服务", "性价比"],
+                name: "评分维度",
+                nameLocation: "middle",
+                nameGap: 25,
+                nameTextStyle: { color: "#455a64", fontSize: 10 },
+                axisLine: { lineStyle: { color: "#cfd8dc" } },
+                splitLine: { show: false },
+                axisLabel: { fontSize: 10 }
+            },
+            yAxis: {
+                type: 'value',
+                name: "平均分",
+                nameLocation: "middle",
+                nameGap: 40,
+                min: 5.0,
+                max: 6.6,
+                interval: 0.2,
+                nameTextStyle: { color: "#455a64", fontSize: 10 },
+                axisLine: { lineStyle: { color: "#cfd8dc" } },
+                axisLabel: { formatter: "{value}", color: "#546e7a", fontSize: 9 },
+                splitLine: { show: true, lineStyle: { color: "#eceff1", type: "dashed" } }
+            },
+            series: [
+                {
+                    name: '小琪',
+                    type: 'bar',
+                    data: [6.33, 5.87, 5.78, 5.51],
+                    itemStyle: { color: "#4A78C2", borderColor: "#3A5F98", borderWidth: 2 },
+                    barGap: "20%"
+                },
+                {
+                    name: '小辞',
+                    type: 'bar',
+                    data: [6.51, 6.14, 6.06, 5.70],
+                    itemStyle: { color: "#8DD35F", borderColor: "#75B84D", borderWidth: 2 }
+                },
+                {
+                    name: '整体',
+                    type: 'bar',
+                    data: [6.42, 6.01, 5.92, 5.61],
+                    itemStyle: { color: "#F0B86E", borderColor: "#E09F4B", borderWidth: 2 }
+                }
+            ],
+            legend: {
+                left: "center",
+                top: "50px",
+                orient: "horizontal",
+                itemGap: 20,
+                textStyle: { color: "#455a64", fontSize: 11 }
+            },
+            tooltip: {
+                trigger: 'axis',
+                textStyle: { fontSize: 10 },
+                formatter: "{b}<br/>{a}：{c}"
+            },
+            dataZoom: [{ type: "inside", rangeStart: 0, rangeEnd: 100 }],
+            toolbox: {
+                show: true,
+                left: "center",
+                top: "10px",
+                itemSize: 16,
+                feature: {
+                    saveAsImage: {},
+                    magicType: { type: ["line", "bar"] }
+                }
+            }
+        };
+        chart21.setOption(option21);
+
+        // 初始化 chart2.3
+        const chart23 = echarts.init(document.getElementById('chart23'));
+        const option23 = {
+            width: "100%",
+            height: "400px",
+            backgroundColor: "#ffffff",
+            tooltip: {
+                trigger: 'axis',
+                textStyle: { fontSize: 10 }
+            },
+            legend: {
+                data: ['平均价格(元)', '评价餐厅数', '平均总分'],
+                left: "center",
+                top: "10px",
+                orient: "horizontal",
+                itemGap: 20,
+                textStyle: { color: "#455a64", fontSize: 11 }
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                axisLine: { lineStyle: { color: "#cfd8dc" } },
+                splitLine: { show: false },
+                axisLabel: { fontSize: 10 }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '分数/餐厅数',
+                    min: 0,
+                    max: 30,
+                    interval: 5,
+                    nameTextStyle: { color: "#455a64", fontSize: 10 },
+                    axisLine: { lineStyle: { color: "#cfd8dc" } },
+                    axisLabel: { color: "#546e7a", fontSize: 9 },
+                    splitLine: { show: true, lineStyle: { color: "#eceff1", type: "dashed" } }
+                },
+                {
+                    type: 'value',
+                    name: '价格(元)',
+                    min: 80,
+                    max: 150,
+                    interval: 10,
+                    nameTextStyle: { color: "#455a64", fontSize: 10 },
+                    axisLine: { lineStyle: { color: "#cfd8dc" } },
+                    axisLabel: { color: "#546e7a", fontSize: 9 },
+                    splitLine: { show: false }
+                }
+            ],
+            series: [
+                {
+                    name: '平均价格(元)',
+                    type: 'line',
+                    data: [90.44, 128.59, 112.65, 131.97, 126.62, 134.02, 150, 142, 84.02, 103.07, 101.13, 110.62],
+                    yAxisIndex: 1,
+                    itemStyle: { color: "#d32f2f" },
+                    lineStyle: { width: 3 },
+                    symbolSize: 8
+                },
+                {
+                    name: '评价餐厅数',
+                    type: 'line',
+                    data: [9, 9, 11, 17, 13, 9, 10, 12, 12, 15, 15, 24],
+                    yAxisIndex: 0,
+                    itemStyle: { color: "#8DD35F" },
+                    lineStyle: { width: 3 },
+                    symbolSize: 8
+                },
+                {
+                    name: '平均总分',
+                    type: 'line',
+                    data: [6.73, 6.34, 5.96, 6.41, 5.91, 6.09, 5.97, 6.06, 6.22, 6.21, 6.35, 6.39],
+                    yAxisIndex: 0,
+                    itemStyle: { color: "#1976d2" },
+                    lineStyle: { width: 3 },
+                    symbolSize: 8
+                }
+            ],
+            dataZoom: [{ type: "inside", rangeStart: 0, rangeEnd: 100 }]
+        };
+        chart23.setOption(option23);
+
+        // 响应式调整图表
+        window.addEventListener('resize', () => {
+            chart21.resize();
+            chart23.resize();
+        });
+    </script>
+</body>
+</html>
