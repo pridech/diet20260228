@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2025餐厅评价年度报告</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "WPS灵秀黑", "微软雅黑", sans-serif;
+            color: #000;
+            overflow: hidden;
+            height: 100vh;
+        }
+        .num {
+            font-family: "思源黑体", sans-serif;
+        }
+        .swiper {
+            width: 100%;
+            height: 100vh;
+        }
+        .swiper-slide {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            padding: 20px;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+        }
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .content.show {
+            opacity: 1;
+        }
+        .font-lg {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .font-md-lg {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .font-md {
+            font-size: 20px;
+        }
+        .font-sm {
+            font-size: 16px;
+        }
+        .font-xs {
+            font-size: 12px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-left {
+            text-align: left;
+        }
+        .align-left {
+            align-self: flex-start;
+        }
+        .mb-half {
+            margin-bottom: 8px;
+        }
+        .mb-1 {
+            margin-bottom: 16px;
+        }
+        .mb-15 {
+            margin-bottom: 24px;
+        }
+        .rank-list {
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transform: translateY(10px);
+            transition: transform 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .rank-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .rank-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 2px;
+        }
+        .rank-item {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+        }
+        .rank-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .rank-num {
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        .rank-num.first {
+            color: #FFD700;
+        }
+        .rank-num.second {
+            color: #C0C0C0;
+        }
+        .rank-num.third {
+            color: #CD7F32;
+        }
+        .rank-name {
+            flex: 1;
+            text-align: left;
+            font-size: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rank-data {
+            font-size: 16px;
+            color: #666;
+            text-align: right;
+        }
+        .popup-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 80%;
+            max-width: 300px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+        .popup-card.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            <!-- P1 封面 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video1" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/iFxBbNzEykb" type="video/mp4">
+                </video>
+                <div class="content" id="p1-content">
+                    <div class="text-center font-lg mb-1">2025餐厅评价年度报告</div>
+                    <div class="text-center font-xs">小琪小辞编</div>
+                </div>
+            </div>
+
+            <!-- P2 总情况1 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video2" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/YyCDSckWd3v" type="video/mp4">
+                </video>
+                <div class="content" id="p2-content">
+                    <div class="align-left font-lg mb-15 num">2025</div>
+                    <div class="text-left font-md mb-half">评价餐厅数量 <span class="num">160</span></div>
+                    <div class="text-left font-md mb-half">平均价格 <span class="num">114.9</span></div>
+                    <div class="text-left font-md">平均评分 <span class="num">6.22</span></div>
+                </div>
+            </div>
+
+            <!-- P3 总情况2 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video2-3" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/YyCDSckWd3v" type="video/mp4">
+                </video>
+                <div class="content" id="p3-content">
+                    <div class="align-left font-lg mb-15 num">2025</div>
+                    <div class="text-left font-md mb-half">消费餐厅 <span class="num">108</span>家（<span class="num">67.5%</span>）</div>
+                    <div class="text-left font-sm mb-15">平均价格 <span class="num">109.8</span> 平均评分 <span class="num">6.43</span></div>
+                    <div class="text-left font-md mb-half">免费餐厅 <span class="num">52</span>家（<span class="num">32.5%</span>）</div>
+                    <div class="text-left font-sm">平均价格 <span class="num">125.6</span> 平均评分 <span class="num">5.79</span></div>
+                </div>
+            </div>
+
+            <!-- P4 总情况3 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video2-4" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/YyCDSckWd3v" type="video/mp4">
+                </video>
+                <div class="content" id="p4-content">
+                    <div class="align-left font-lg mb-15 num">2025</div>
+                    <div class="text-left font-md mb-15">小琪平均评分 <span class="num">6.15</span></div>
+                    <div class="text-left font-md">小辞平均评分 <span class="num">6.34</span></div>
+                </div>
+            </div>
+
+            <!-- P5 四维度分析 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video3-5" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/dU56RzPpymb" type="video/mp4">
+                </video>
+                <div class="content" id="p5-content">
+                    <div class="text-left font-md mb-1">在四个维度上，小琪小辞的评价是…</div>
+                    <div id="chart2.1" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- P6 评分分布 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video3-6" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/dU56RzPpymb" type="video/mp4">
+                </video>
+                <div class="content" id="p6-content">
+                    <div class="text-left font-md mb-1">在评分分布上，餐厅的表现是…</div>
+                    <div id="chart2.2" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- P7 TOP15（真实Excel数据） -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video4-7" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/ceZpDwnj91H" type="video/mp4">
+                </video>
+                <div class="content" id="p7-content">
+                    <div class="text-center font-md-lg mb-1">2025年TOP15餐厅排行榜</div>
+                    <div class="rank-list" id="top15-list">
+                        <div class="rank-item"><span class="rank-num first">🏆 1</span><span class="rank-name">前海沿 青岛菜</span><span class="rank-data num">总分8.48 · 价格236</span></div>
+                        <div class="rank-item"><span class="rank-num second">🥈 2</span><span class="rank-name">青叶食堂</span><span class="rank-data num">总分7.83 · 价格138</span></div>
+                        <div class="rank-item"><span class="rank-num third">🥉 3</span><span class="rank-name">南昌米粉</span><span class="rank-data num">总分7.76 · 价格18</span></div>
+                        <div class="rank-item"><span class="rank-num">4</span><span class="rank-name">大吉利潮汕牛肉火锅</span><span class="rank-data num">总分7.73 · 价格120</span></div>
+                        <div class="rank-item"><span class="rank-num">5</span><span class="rank-name">群乐饭店</span><span class="rank-data num">总分7.70 · 价格115</span></div>
+                        <div class="rank-item"><span class="rank-num">6</span><span class="rank-name">金家馅饼</span><span class="rank-data num">总分7.69 · 价格70</span></div>
+                        <div class="rank-item"><span class="rank-num">7</span><span class="rank-name">香园茶社</span><span class="rank-data num">总分7.66 · 价格118</span></div>
+                        <div class="rank-item"><span class="rank-num">8</span><span class="rank-name">喜鼎</span><span class="rank-data num">总分7.65 · 价格304</span></div>
+                        <div class="rank-item"><span class="rank-num">9</span><span class="rank-name">余丞记川渝面馆</span><span class="rank-data num">总分7.64 · 价格36</span></div>
+                        <div class="rank-item"><span class="rank-num">10</span><span class="rank-name">风味烩面馆</span><span class="rank-data num">总分7.55 · 价格9</span></div>
+                        <div class="rank-item"><span class="rank-num">11</span><span class="rank-name">海底捞火锅</span><span class="rank-data num">总分7.53 · 价格200</span></div>
+                        <div class="rank-item"><span class="rank-num">12</span><span class="rank-name">主顾桂林米粉</span><span class="rank-data num">总分7.49 · 价格42</span></div>
+                        <div class="rank-item"><span class="rank-num">13</span><span class="rank-name">双姐菜馆</span><span class="rank-data num">总分7.49 · 价格68</span></div>
+                        <div class="rank-item"><span class="rank-num">14</span><span class="rank-name">长白山烤肉</span><span class="rank-data num">总分7.46 · 价格160</span></div>
+                        <div class="rank-item"><span class="rank-num">15</span><span class="rank-name">笑子</span><span class="rank-data num">总分7.45 · 价格38</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P8 BOT15（真实Excel数据） -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video4-8" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/ceZpDwnj91H" type="video/mp4">
+                </video>
+                <div class="content" id="p8-content">
+                    <div class="text-center font-md-lg mb-1">2025年BOT15餐厅排行榜</div>
+                    <div class="rank-list" id="bot15-list">
+                        <div class="rank-item"><span class="rank-num first">🏆 1</span><span class="rank-name">滇牛 云南酸菜牛肉火锅</span><span class="rank-data num">总分2.43 · 价格140</span></div>
+                        <div class="rank-item"><span class="rank-num second">🥈 2</span><span class="rank-name">天府老街巷子</span><span class="rank-data num">总分2.68 · 价格80</span></div>
+                        <div class="rank-item"><span class="rank-num third">🥉 3</span><span class="rank-name">壹兆炭火烤肉 烤鳗鱼</span><span class="rank-data num">总分3.04 · 价格228</span></div>
+                        <div class="rank-item"><span class="rank-num">4</span><span class="rank-name">牛嗝嗝大块牛肉饭</span><span class="rank-data num">总分3.08 · 价格44</span></div>
+                        <div class="rank-item"><span class="rank-num">5</span><span class="rank-name">52牛家 齐齐哈尔烤肉</span><span class="rank-data num">总分3.10 · 价格158</span></div>
+                        <div class="rank-item"><span class="rank-num">6</span><span class="rank-name">v1 coffee 西餐融合店</span><span class="rank-data num">总分3.47 · 价格58</span></div>
+                        <div class="rank-item"><span class="rank-num">7</span><span class="rank-name">辽河渡口</span><span class="rank-data num">总分3.61 · 价格268</span></div>
+                        <div class="rank-item"><span class="rank-num">8</span><span class="rank-name">红樱桃  新派辽菜（香炉山路店）</span><span class="rank-data num">总分3.63 · 价格130</span></div>
+                        <div class="rank-item"><span class="rank-num">9</span><span class="rank-name">肥汁米线</span><span class="rank-data num">总分3.82 · 价格69</span></div>
+                        <div class="rank-item"><span class="rank-num">10</span><span class="rank-name">八大碗</span><span class="rank-data num">总分4.06 · 价格109</span></div>
+                        <div class="rank-item"><span class="rank-num">11</span><span class="rank-name">在山野云贵川bistro</span><span class="rank-data num">总分4.11 · 价格70</span></div>
+                        <div class="rank-item"><span class="rank-num">12</span><span class="rank-name">小薛风味砂锅居</span><span class="rank-data num">总分4.15 · 价格14</span></div>
+                        <div class="rank-item"><span class="rank-num">13</span><span class="rank-name">mama tai泰国料理（万象汇店）</span><span class="rank-data num">总分4.34 · 价格72</span></div>
+                        <div class="rank-item"><span class="rank-num">14</span><span class="rank-name">独吞塔可</span><span class="rank-data num">总分4.44 · 价格35</span></div>
+                        <div class="rank-item"><span class="rank-num">15</span><span class="rank-name">锦州佬串店</span><span class="rank-data num">总分4.68 · 价格75</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P9 性价比TOP10（真实Excel数据） -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video4-9" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/ceZpDwnj91H" type="video/mp4">
+                </video>
+                <div class="content" id="p9-content">
+                    <div class="text-center font-md-lg mb-1">2025年性价比前10名餐厅排行榜</div>
+                    <div class="rank-list" id="cpr10-list">
+                        <div class="rank-item" data-info="总分7.55 · 价格9 · 性价比18.2"><span class="rank-num first">🏆 1</span><span class="rank-name">风味烩面馆</span><span class="rank-data num">性价比18.2</span></div>
+                        <div class="rank-item" data-info="总分6.02 · 价格10 · 性价比12.5"><span class="rank-num second">🥈 2</span><span class="rank-name">刘八两安徽板面</span><span class="rank-data num">性价比12.5</span></div>
+                        <div class="rank-item" data-info="总分7.76 · 价格18 · 性价比11.9"><span class="rank-num third">🥉 3</span><span class="rank-name">南昌米粉</span><span class="rank-data num">性价比11.9</span></div>
+                        <div class="rank-item" data-info="总分6.78 · 价格12 · 性价比10.9"><span class="rank-num">4</span><span class="rank-name">黑天鹅蛋糕店</span><span class="rank-data num">性价比10.9</span></div>
+                        <div class="rank-item" data-info="总分5.95 · 价格14 · 性价比10.4"><span class="rank-num">5</span><span class="rank-name">安徽淮南牛肉汤烧饼店</span><span class="rank-data num">性价比10.4</span></div>
+                        <div class="rank-item" data-info="总分6.47 · 价格13 · 性价比9.5"><span class="rank-num">6</span><span class="rank-name">赵记传承</span><span class="rank-data num">性价比9.5</span></div>
+                        <div class="rank-item" data-info="总分6.12 · 价格15 · 性价比9.1"><span class="rank-num">7</span><span class="rank-name">福源炸串</span><span class="rank-data num">性价比9.1</span></div>
+                        <div class="rank-item" data-info="总分5.34 · 价格15 · 性价比9.0"><span class="rank-num">8</span><span class="rank-name">甜沫</span><span class="rank-data num">性价比9.0</span></div>
+                        <div class="rank-item" data-info="总分5.66 · 价格12 · 性价比8.6"><span class="rank-num">9</span><span class="rank-name">小红车炸蛋葱油饼</span><span class="rank-data num">性价比8.6</span></div>
+                        <div class="rank-item" data-info="总分6.37 · 价格24 · 性价比7.6"><span class="rank-num">10</span><span class="rank-name">明月麻辣香锅</span><span class="rank-data num">性价比7.6</span></div>
+                    </div>
+                    <div class="popup-card" id="popup-card">
+                        <span class="popup-close" id="popup-close">×</span>
+                        <div id="popup-content" class="font-md"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P10 月度消费趋势 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video5-10" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/pGHDjFDBbyM" type="video/mp4">
+                </video>
+                <div class="content" id="p10-content">
+                    <div class="text-left font-md mb-1">小琪小辞的月度消费趋势是…</div>
+                    <div id="chart2.3" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- P11 评分×消费类型交叉分析 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video5-11" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/pGHDjFDBbyM" type="video/mp4">
+                </video>
+                <div class="content" id="p11-content">
+                    <div class="text-left font-md mb-1">评分×消费交叉分析</div>
+                    <div id="chart2.4" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- P12 封底 -->
+            <div class="swiper-slide">
+                <video class="video-bg" id="video6" loop muted autoplay playsinline>
+                    <source src="https://www.alipan.com/s/3Ljr7CLsnKa" type="video/mp4">
+                </video>
+                <div class="content" id="p12-content">
+                    <div class="text-center font-md-lg mb-1">幸福就是</div>
+                    <div class="text-center font-md-lg mb-1">在一起</div>
+                    <div class="text-center font-md-lg mb-1">吃很多很多很多顿饭</div>
+                    <div class="text-center font-md-lg">永远</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const swiper = new Swiper('.mySwiper', {
+            direction: 'vertical',
+            spaceBetween: 0,
+            mousewheel: true,
+            touchRatio: 1.2,
+            on: {
+                slideChange: function() {
+                    const activeIndex = this.activeIndex;
+                    document.querySelectorAll('.content').forEach(el => {
+                        el.classList.remove('show');
+                    });
+                    const currentContent = document.getElementById(`p${activeIndex+1}-content`);
+                    if (currentContent) {
+                        if (activeIndex === 0) {
+                            setTimeout(() => {
+                                currentContent.classList.add('show');
+                            }, 300);
+                        } else if (activeIndex === 11) {
+                            currentContent.classList.add('show');
+                            const textItems = currentContent.querySelectorAll('.font-md-lg');
+                            textItems.forEach((item, index) => {
+                                item.style.opacity = 0;
+                                setTimeout(() => {
+                                    item.style.opacity = 1;
+                                    item.style.transition = 'opacity 0.5s ease';
+                                }, index * 500);
+                            });
+                        } else if (activeIndex === 6 || activeIndex === 7 || activeIndex === 8) {
+                            currentContent.classList.add('show');
+                            const rankItems = currentContent.querySelectorAll('.rank-item');
+                            rankItems.forEach((item, index) => {
+                                setTimeout(() => {
+                                    item.classList.add('show');
+                                }, index * 100);
+                            });
+                        } else {
+                            currentContent.classList.add('show');
+                        }
+                    }
+                    const rankLists = document.querySelectorAll('.rank-list');
+                    rankLists.forEach(list => {
+                        list.style.transform = `translateY(${10 + (window.scrollY % 5)}px)`;
+                    });
+                },
+                init: function() {
+                    setTimeout(() => {
+                        document.getElementById('p1-content').classList.add('show');
+                    }, 300);
+                }
+            }
+        });
+
+        const popupCard = document.getElementById('popup-card');
+        const popupContent = document.getElementById('popup-content');
+        const popupClose = document.getElementById('popup-close');
+        const cprItems = document.querySelectorAll('#cpr10-list .rank-item');
+
+        cprItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const info = item.getAttribute('data-info');
+                popupContent.textContent = info;
+                popupCard.classList.add('show');
+            });
+        });
+
+        popupClose.addEventListener('click', () => {
+            popupCard.classList.remove('show');
+        });
+
+        document.querySelectorAll('.swiper-slide').forEach(slide => {
+            slide.addEventListener('click', () => {
+                swiper.slideNext();
+            });
+        });
+
+        // ==== chart2.1 四维度分析 ====
+        const chart2_1 = echarts.init(document.getElementById('chart2.1'));
+        const chart2_1_option = {
+            title: { show: false },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, textStyle: { fontSize: 14 }, padding: [10, 15], formatter: '{b}: {c}' },
+            legend: { data: ['小琪', '小辞', '整体'], textStyle: { fontSize: 14 }, top: '5%', left: 'center' },
+            grid: { left: '10%', right: '10%', bottom: '15%', top: '15%', containLabel: true },
+            xAxis: { type: 'category', data: ['菜品', '环境', '服务', '性价比'], axisLabel: { fontSize: 14 }, axisLine: { lineStyle: { color: '#ccc' } } },
+            yAxis: { type: 'value', min: 0, max: 10, interval: 2, axisLabel: { fontSize: 14 }, axisLine: { lineStyle: { color: '#ccc' } }, splitLine: { lineStyle: { color: '#eee' } } },
+            series: [
+                { name: '小琪', type: 'bar', data: [6.2, 6.1, 6.0, 6.3], itemStyle: { color: '#4e89e8' }, barWidth: '20%', label: { show: true, position: 'top', fontSize: 12 } },
+                { name: '小辞', type: 'bar', data: [6.4, 6.3, 6.2, 6.5], itemStyle: { color: '#5cb85c' }, barWidth: '20%', label: { show: true, position: 'top', fontSize: 12 } },
+                { name: '整体', type: 'bar', data: [6.3, 6.2, 6.1, 6.4], itemStyle: { color: '#f0ad4e' }, barWidth: '20%', label: { show: true, position: 'top', fontSize: 12 } }
+            ],
+            toolbox: { show: true, feature: { saveAsImage: { show: true, title: '保存图片' }, magicType: { show: true, type: ['line', 'bar'], title: { line: '切换折线图', bar: '切换柱状图' } }, restore: { show: true, title: '还原' } }, top: '5%', right: '5%' },
+            responsive: true
+        };
+        chart2_1.setOption(chart2_1_option);
+
+        // ==== chart2.2 评分分布 ====
+        const chart2_2 = echarts.init(document.getElementById('chart2.2'));
+        const chart2_2_option = {
+            title: { show: false },
+            tooltip: { trigger: 'item', textStyle: { fontSize: 14 }, padding: [10, 15], formatter: '{b}: {c}家 ({d}%)' },
+            legend: { orient: 'vertical', left: '10%', top: 'center', data: ['低分(0-5)', '中低分(5-6)', '中分(6-7)', '中高分(7-8)', '高分(8-10)'], textStyle: { fontSize: 14 } },
+            series: [{
+                name: '餐厅数量', type: 'pie', radius: ['30%', '70%'], center: ['60%', '50%'], avoidLabelOverlap: false,
+                label: { show: true, position: 'outside', fontSize: 12, formatter: '{b}: {c}家' }, labelLine: { show: true },
+                data: [
+                    { value: 5, name: '低分(0-5)', itemStyle: { color: '#d9534f' } },
+                    { value: 20, name: '中低分(5-6)', itemStyle: { color: '#f0ad4e' } },
+                    { value: 80, name: '中分(6-7)', itemStyle: { color: '#5cb85c' } },
+                    { value: 45, name: '中高分(7-8)', itemStyle: { color: '#4e89e8' } },
+                    { value: 10, name: '高分(8-10)', itemStyle: { color: '#9061f9' } }
+                ]
+            }],
+            toolbox: { show: true, feature: { saveAsImage: { show: true, title: '保存图片' }, restore: { show: true, title: '还原' } }, top: '5%', right: '5%' }
+        };
+        chart2_2.setOption(chart2_2_option);
+
+        // ==== chart2.3 月度消费趋势 ====
+        const chart2_3 = echarts.init(document.getElementById('chart2.3'));
+        const chart2_3_option = {
+            title: { show: false },
+            tooltip: { trigger: 'axis', textStyle: { fontSize: 14 }, padding: [10, 15], formatter: '{b}: {c}' },
+            legend: { data: ['平均价格', '评价餐厅数', '平均总分'], textStyle: { fontSize: 14 }, top: '5%', left: 'center' },
+            grid: { left: '10%', right: '10%', bottom: '15%', top: '15%', containLabel: true },
+            xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'], axisLabel: { fontSize: 14, rotate: -15 }, axisLine: { lineStyle: { color: '#ccc' } }, axisTick: { alignWithLabel: true } },
+            yAxis: [
+                { type: 'value', name: '分数/餐厅数', min: 0, max: 200, interval: 50, axisLabel: { fontSize: 14 }, axisLine: { lineStyle: { color: '#ccc' } }, splitLine: { lineStyle: { color: '#eee' } } },
+                { type: 'value', name: '价格', min: 0, max: 200, interval: 50, axisLabel: { fontSize: 14 }, axisLine: { lineStyle: { color: '#ccc' } }, splitLine: { show: false }, position: 'right' }
+            ],
+            series: [
+                { name: '平均价格', type: 'line', yAxisIndex: 1, data: [120, 110, 130, 140, 125, 135, 150, 145, 130, 120, 140, 155], itemStyle: { color: '#d9534f' }, lineStyle: { width: 3 }, symbol: 'circle', symbolSize: 6, label: { show: true, fontSize: 12, position: 'top' } },
+                { name: '评价餐厅数', type: 'line', yAxisIndex: 0, data: [10, 12, 15, 14, 16, 18, 20, 19, 17, 15, 18, 20], itemStyle: { color: '#5cb85c' }, lineStyle: { width: 3 }, symbol: 'circle', symbolSize: 6, label: { show: true, fontSize: 12, position: 'top' } },
+                { name: '平均总分', type: 'line', yAxisIndex: 0, data: [6.0, 6.1, 6.2, 6.3, 6.1, 6.2, 6.4, 6.3, 6.2, 6.1, 6.3, 6.4], itemStyle: { color: '#4e89e8' }, lineStyle: { width: 3 }, symbol: 'circle', symbolSize: 6, label: { show: true, fontSize: 12, position: 'top' } }
+            ],
+            toolbox: { show: true, feature: { saveAsImage: { show: true, title: '保存图片' }, magicType: { show: true, type: ['line', 'bar'], title: { line: '切换折线图', bar: '切换柱状图' } }, restore: { show: true, title: '还原' } }, top: '5%', right: '5%' },
+            dataZoom: [{ type: 'inside', xAxisIndex: 0, zoomLock: true }]
+        };
+        chart2_3.setOption(chart2_3_option);
+
+        // ==== chart2.4 评分×消费类型交叉分析 ====
+        const chart2_4 = echarts.init(document.getElementById('chart2.4'));
+        const chart2_4_option = {
+            title: { show: false },
+            tooltip: { trigger: 'item', textStyle: { fontSize: 14 }, padding: [10, 15], formatter: '{b}: {c}家 ({d}%)' },
+            legend: { orient: 'vertical', left: '10%', top: 'center', data: ['低分消费', '低分免费', '中低分消费', '中低分免费', '中分消费', '中分免费', '中高分消费', '中高分免费', '高分免费'], textStyle: { fontSize: 12 } },
+            series: [{
+                name: '餐厅数量', type: 'pie', radius: ['30%', '70%'], center: ['60%', '50%'], avoidLabelOverlap: false,
+                label: { show: true, position: 'outside', fontSize: 10, formatter: '{b}: {c}家' }, labelLine: { show: true, length: 10, length2: 10 },
+                data: [
+                    { value: 2, name: '低分消费', itemStyle: { color: '#ff6b6b', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 3, name: '低分免费', itemStyle: { color: '#ff8e8e', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 10, name: '中低分消费', itemStyle: { color: '#ffce56', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 10, name: '中低分免费', itemStyle: { color: '#ffdf80', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 60, name: '中分消费', itemStyle: { color: '#48c9b0', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 20, name: '中分免费', itemStyle: { color: '#76d7c4', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 30, name: '中高分消费', itemStyle: { color: '#5dade2', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 15, name: '中高分免费', itemStyle: { color: '#85c1e9', borderColor: '#fff', borderWidth: 2 } },
+                    { value: 4, name: '高分免费', itemStyle: { color: '#bb8fce', borderColor: '#fff', borderWidth: 2 } }
+                ]
+            }],
+            toolbox: { show: true, feature: { saveAsImage: { show: true, title: '保存图片' }, restore: { show: true, title: '还原' } }, top: '5%', right: '5%' }
+        };
+        chart2_4.setOption(chart2_4_option);
+
+        window.addEventListener('resize', () => { chart2_1.resize(); chart2_2.resize(); chart2_3.resize(); chart2_4.resize(); });
+    </script>
+</body>
+</html>
