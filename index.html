@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2025餐厅评价年度报告</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: "微软雅黑", sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+        #playOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #fff;
+            font-size: 1.6em;
+            text-align: center;
+        }
+        .page-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        section {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            z-index: 0;
+        }
+        section.active {
+            opacity: 1;
+            z-index: 10;
+        }
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .video-bg.played {
+            opacity: 1;
+        }
+        .page-content {
+            width: 90%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page1 {
+            justify-content: center;
+        }
+        .page1 .title {
+            font-size: 3em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .page1 .subtitle {
+            font-size: 1.2em;
+            color: #fff;
+        }
+
+        /* 2、3、4 居中不挡狗 */
+        .page2, .page3, .page4 {
+            justify-content: center;
+        }
+        .page2 .text-medium,
+        .page3 .text-medium,
+        .page4 .text-medium {
+            color: #fff;
+            font-size: 1.5em;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .page2 .text-small,
+        .page3 .text-small {
+            color: #fff;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        /* 5、6、10、11 标题在上，内容居中 */
+        .page5, .page6, .page10, .page11 {
+            justify-content: flex-start;
+            padding-top: 60px;
+        }
+        .chart-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+        .page10 .chart-title,
+        .page11 .chart-title {
+            color: #fff;
+        }
+        .chart-container {
+            width: 100%;
+            height: 380px;
+            margin-top: 10px;
+        }
+        .chart-toolbar {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .chart-toolbar button {
+            padding: 4px 10px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .page7, .page8, .page9 {
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+        .ranking-title {
+            color: #fff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .ranking-list {
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .ranking-item {
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ranking-item .rank {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .ranking-item .name {
+            flex: 1;
+            text-align: left;
+        }
+        .ranking-item .score {
+            margin-left: 10px;
+        }
+
+        .card-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .card-popup.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        /* 最后一页 */
+        .page12 {
+            justify-content: center;
+        }
+        .page12 .line {
+            color: #fff;
+            font-size: 1.6em;
+            margin: 12px 0;
+            opacity: 0;
+        }
+        .page12.active .line1 { animation: fadeIn 0.8s 0s forwards; }
+        .page12.active .line2 { animation: fadeIn 0.8s 0.8s forwards; }
+        .page12.active .line3 { animation: fadeIn 0.8s 1.6s forwards; }
+        .page12.active .line4 { animation: fadeIn 0.8s 2.4s forwards; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="playOverlay">点击任意位置开始播放</div>
+<div class="page-container">
+
+<!-- 1 -->
+<section class="page1 active">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/v0369cg10004d6beab7og65pefsj2bmg.mp4"></video>
+  <div class="page-content">
+    <div class="title">2025 餐厅评价<br>年度报告</div>
+    <div class="subtitle">小琪小辞编</div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="page2">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video2.mp4"></video>
+  <div class="page-content">
+    <div class="text-medium">评价餐厅数量 160</div>
+    <div class="text-medium">平均价格 114.9</div>
+    <div class="text-medium">平均评分 6.22</div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="page3">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video2.mp4"></video>
+  <div class="page-content">
+    <div class="text-medium">消费餐厅 108 家</div>
+    <div class="text-small">占比67.5% 均价109.8 均分6.43</div>
+    <div class="text-medium">免费餐厅 52 家</div>
+    <div class="text-small">占比32.5% 均价125.6 均分5.79</div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="page4">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video2.mp4"></video>
+  <div class="page-content">
+    <div class="text-medium">小琪 平均评分 6.15</div>
+    <div class="text-medium">小辞 平均评分 6.34</div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="page5">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video3.mp4"></video>
+  <div class="page-content">
+    <div class="chart-title">小琪小辞四维度评价对比</div>
+    <div class="chart-toolbar">
+      <button onclick="setChartBar()">柱状</button>
+      <button onclick="setChartLine()">折线</button>
+    </div>
+    <div id="chart5" class="chart-container"></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="page6">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video3.mp4"></video>
+  <div class="page-content">
+    <div class="chart-title">餐厅评分分布情况</div>
+    <div id="chart6" class="chart-container"></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="page7">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video4.mp4"></video>
+  <div class="page-content">
+    <div class="ranking-title">2025 TOP15 餐厅</div>
+    <div class="ranking-list">
+      <div class="ranking-item"><span class="rank">1</span><span class="name">前海沿 青岛菜</span><span class="score">8.48</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="page8">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video4.mp4"></video>
+  <div class="page-content">
+    <div class="ranking-title">2025 BOT15 餐厅</div>
+    <div class="ranking-list">
+      <div class="ranking-item"><span class="rank">1</span><span class="name">滇牛 云南酸菜牛肉火锅</span><span class="score">2.43</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="page9">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video4.mp4"></video>
+  <div class="page-content">
+    <div class="ranking-title">2025 性价比 TOP10</div>
+    <div class="ranking-list">
+      <div class="ranking-item" data-detail="风味烩面馆<br>总分：7.55<br>价格：9"><span class="rank">1</span><span class="name">风味烩面馆</span><span class="score">7.55</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="page10">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video5.mp4"></video>
+  <div class="page-content">
+    <div class="chart-title">月度消费趋势</div>
+    <div id="chart10" class="chart-container"></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="page11">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video5.mp4"></video>
+  <div class="page-content">
+    <div class="chart-title">评分×消费交叉分析</div>
+    <div id="chart11" class="chart-container"></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="page12">
+  <video class="video-bg" loop muted playsinline src="https://pridech.github.io/diet20260228/video6.mp4"></video>
+  <div class="page-content">
+    <div class="line line1">幸福就是</div>
+    <div class="line line2">在一起</div>
+    <div class="line line3">吃很多很多很多顿饭</div>
+    <div class="line line4">永远</div>
+  </div>
+</section>
+
+</div>
+
+<div class="card-popup">
+  <div class="close-btn">×</div>
+  <div class="popup-content"></div>
+</div>
+
+<script>
+const overlay = document.getElementById('playOverlay');
+overlay.onclick = () => {
+  overlay.style.display = 'none';
+  document.querySelectorAll('.video-bg').forEach(v => {
+    v.classList.add('played');
+    v.play().catch(()=>{});
+  });
+};
+
+let curPage = 0;
+const pages = document.querySelectorAll('section');
+let startY = 0;
+
+document.addEventListener('touchstart', e => {
+  startY = e.changedTouches[0].clientY;
+});
+document.addEventListener('touchend', e => {
+  const endY = e.changedTouches[0].clientY;
+  const dy = startY - endY;
+  if (Math.abs(dy) < 30) return;
+  pages[curPage].classList.remove('active');
+  if (dy > 0) {
+    curPage = Math.min(curPage + 1, pages.length - 1);
+  } else {
+    curPage = Math.max(curPage - 1, 0);
+  }
+  pages[curPage].classList.add('active');
+});
+
+const chart5 = echarts.init(document.getElementById('chart5'));
+chart5.setOption({
+  xAxis: { data: ['菜品','环境','服务','性价比'] },
+  yAxis: {},
+  series: [{ type: 'bar', data: [6.3,5.9,5.8,5.5] }],
+  legend: { bottom: 10 }
+});
+window.setChartBar = () => chart5.setOption({ series: [{ type: 'bar' }] });
+window.setChartLine = () => chart5.setOption({ series: [{ type: 'line' }] });
+
+const chart6 = echarts.init(document.getElementById('chart6'));
+chart6.setOption({
+  series: [{
+    type: 'pie',
+    radius: '60%',
+    data: [
+      {value:18,name:'低分(0-5)'},
+      {value:27,name:'中低(5-6)'},
+      {value:80,name:'中(6-7)'},
+      {value:34,name:'中高(7-8)'},
+      {value:1,name:'高(8-10)'}
+    ]
+  }],
+  legend: { bottom: 10 }
+});
+
+const chart10 = echarts.init(document.getElementById('chart10'));
+chart10.setOption({
+  xAxis: { data: ['1','2','3','4','5','6','7','8','9','10','11','12'] },
+  yAxis: {},
+  series: [{ type: 'line', data: [90,128,112,131,126,134,150,142,84,103,101,110] }]
+});
+
+const chart11 = echarts.init(document.getElementById('chart11'));
+chart11.setOption({
+  xAxis: { data: ['<5','5-6','6-7','>7'] },
+  yAxis: {},
+  series: [{ type: 'bar', data: [5,20,75,8] }]
+});
+
+const popup = document.querySelector('.card-popup');
+const close = document.querySelector('.close-btn');
+document.querySelectorAll('.ranking-item').forEach(item => {
+  item.onclick = () => {
+    document.querySelector('.popup-content').innerHTML = item.dataset.detail;
+    popup.classList.add('active');
+  };
+});
+close.onclick = () => popup.classList.remove('active');
+</script>
+
+</body>
+</html>
